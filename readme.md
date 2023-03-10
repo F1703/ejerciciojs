@@ -95,13 +95,14 @@ Ayuda: let clienteEncontrado = banco.consultarCliente(“Ramon Connell”);
 ```
 var banco = {
     clientes: arrayCuentas,
-    consultarCliente: function(titular){
-        let cliente = this.clientes.filter( function(cuenta){
-            let clienteTitular = cuenta.titularCuenta.toLocaleLowerCase()
-            return clienteTitular.includes(titular.toLocaleLowerCase())
-        }) 
+    consultarCliente: function (titular = '') {
+        titular = titular.toLocaleLowerCase()
+        let cliente = this.clientes.filter(c=>{
+            let titularC = c.titularCuenta.toLocaleLowerCase()
+            return titularC.includes(titular) 
+        })
         return cliente[0]
-    }
+    }, 
 };
 
 ```
@@ -115,18 +116,19 @@ nuevo saldo es: XXXX”.
 
 ```
 var banco = {
-    clientes: arrayCuentas,
-    deposito: function(titular,cantidad){
-        // buscar en clientes el indice  de la cuenta del titular
-        let posCliente = this.clientes.findIndex(function(cuenta){
-            let clienteTitular = cuenta.titularCuenta.toLocaleLowerCase()
-            return clienteTitular.includes(titular.toLocaleLowerCase() )
+    clientes: arrayCuentas, 
+    deposito: function (titular, cantidad) {
+        titular = titular.toLocaleLowerCase()
+        this.clientes.every(c => {
+            let titularC = c.titularCuenta.toLocaleLowerCase()
+            if (titularC.includes(titular)){
+                c.saldoEnPesos += cantidad 
+                console.log("Depósito realizado, su nuevo saldo es: " + c.saldoEnPesos)
+                return false
+            }
+            return true
         })
-
-        console.log("Saldo Anterior: " + this.clientes[posCliente].saldoEnPesos)
-        this.clientes[posCliente].saldoEnPesos += cantidad
-        console.log("Saldo Actual: " + this.clientes[posCliente].saldoEnPesos)
-    }
+    }, 
 };
 
 ```
@@ -143,22 +145,23 @@ saldo es: XXXX”.
 ```
 var banco = {
     clientes: arrayCuentas,
-    extraccion: function(titular,cantidad){
-        let posCliente = this.clientes.findIndex(function(cuenta){
-            let clienteTitular = cuenta.titularCuenta.toLocaleLowerCase()
-            return clienteTitular.includes(titular.toLocaleLowerCase() )
+    extraccion: function (titular, cantidad) {
+        titular = titular.toLocaleLowerCase()
+        this.clientes.every(c => {
+            let titularC = c.titularCuenta.toLocaleLowerCase()
+            if (titularC.includes(titular)){
+                let montoAnterior = c.saldoEnPesos;
+                let montoActual = montoAnterior - cantidad;
+
+                if (montoActual < 0) {
+                    console.log("Fondos insuficientes")
+                    return false;
+                }
+                console.log("Extracción realizada correctamente, su nuevo saldo es: " + montoActual)
+                return false
+            }
+            return true
         })
-
-        let montoAnterior = this.clientes[posCliente].saldoEnPesos ;
-        let montoActual = montoAnterior - cantidad ;
-        
-        if( montoActual < 0) {
-            console.log("Fondos insuficientes") 
-            return true ;
-        }
-
-        this.clientes[posCliente].saldoEnPesos = montoActual ; 
-        console.log("Extracción realizada correctamente, su nuevo saldo es: " + montoActual )
     }
 };
 ```
